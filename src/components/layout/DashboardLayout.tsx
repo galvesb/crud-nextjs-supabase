@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Users, UserPlus, List, Menu, ChevronLeft, LogOut } from 'lucide-react';
+import { FaTachometerAlt } from 'react-icons/fa';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import MenuDropdown from './MenuDropdown';
 
 export default function DashboardLayout({
   children,
@@ -17,6 +19,7 @@ export default function DashboardLayout({
   // Começa sempre fechado (true)
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('');
 
   const supabase = createClientComponentClient();
 
@@ -33,6 +36,19 @@ export default function DashboardLayout({
     }
   };
 
+  // Função para carregar email do usuário
+  const loadUserEmail = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email || '');
+      }
+    } catch (error) {
+      console.error('Erro ao carregar email do usuário:', error);
+    }
+  };
+
+  // Verifica se é mobile e carrega o email do usuário
   useEffect(() => {
     const checkMobile = () => {
       const isMobileView = window.innerWidth <= 484 && window.innerHeight <= 1000;
@@ -41,6 +57,7 @@ export default function DashboardLayout({
 
     // Check on mount
     checkMobile();
+    loadUserEmail(); // Carrega o email ao montar o componente
 
     // Add resize listener
     window.addEventListener('resize', checkMobile);
@@ -57,9 +74,28 @@ export default function DashboardLayout({
   };
 
   const menuItems = [
-    { href: '/dashboard', icon: Users, text: 'Dashboard' },
-    { href: '/dashboard/create', icon: UserPlus, text: 'Cadastrar' },
-    { href: '/dashboard/list', icon: List, text: 'Listar/Excluir' },
+    { 
+      href: '/dashboard', 
+      icon: FaTachometerAlt, 
+      text: 'Dashboard' 
+    },
+    { 
+      href: '#', 
+      icon: Users, 
+      text: 'Pessoas',
+      subItems: [
+        { 
+          href: '/dashboard/create', 
+          icon: UserPlus, 
+          text: 'Cadastrar' 
+        },
+        { 
+          href: '/dashboard/list', 
+          icon: List, 
+          text: 'Listar' 
+        }
+      ]
+    }
   ];
 
   // Força o menu a ficar fechado no mobile, permite toggle apenas em desktop
@@ -87,6 +123,18 @@ export default function DashboardLayout({
           <div className="px-4 space-y-2">
             {menuItems.map((item) => {
               const isActive = pathname === item.href;
+              
+              if (item.subItems) {
+                return (
+                  <MenuDropdown
+                    key={item.href}
+                    item={item}
+                    isActive={isActive}
+                    isCollapsed={effectiveCollapsed}
+                  />
+                );
+              }
+
               return (
                 <Link
                   key={item.href}
@@ -102,16 +150,25 @@ export default function DashboardLayout({
                 </Link>
               );
             })}
+          </div>
 
+          <div className="px-4 pb-4 mt-8">
             {/* Botão de Logout */}
             <button
               onClick={handleLogout}
               disabled={loading}
-              className={`w-full flex items-center ${effectiveCollapsed ? 'justify-center' : 'space-x-2 px-4'} py-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 mt-8`}
+              className={`w-full flex items-center ${effectiveCollapsed ? 'justify-center' : 'space-x-2 px-4'} py-3 rounded-lg transition-colors text-red-600 hover:bg-red-50`}
             >
               <LogOut className="w-5 h-5" />
               <span className={`${effectiveCollapsed ? 'hidden' : 'block'}`}>{loading ? 'Saindo...' : 'Sair'}</span>
             </button>
+
+            {/* Email do usuário - só aparece em desktop e quando não está colapsado */}
+            {!isMobile && !effectiveCollapsed && (
+              <div className="text-sm text-gray-500 mt-4">
+                Usuário logado: {userEmail}
+              </div>
+            )}
           </div>
         </nav>
       </div>
