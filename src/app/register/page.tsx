@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const supabase = createClientComponentClient();
 
@@ -62,9 +65,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="bg-white rounded-2xl shadow-lg w-[350px]">
-        <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-t-2xl h-12 flex items-center px-4">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-lg w-[350px]">
+        <div className="h-16 bg-gradient-to-r from-gray-800 to-gray-700 flex items-center justify-center">
           <span className="text-white font-semibold">Cadastro de Usuário</span>
         </div>
         <form onSubmit={handleSubmit} className="px-6 py-6">
@@ -87,29 +90,57 @@ export default function RegisterPage() {
           </div>
           <div className="mb-4">
             <label className="block text-sm font-semibold mb-1 text-black">Senha:</label>
-            <input
-              type="password"
-              className="w-full p-2 rounded-md bg-gray-100 outline-none text-black placeholder-gray-500"
-              placeholder="Digite sua senha"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
-              disabled={loading}
-              minLength={6}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="w-full p-2 pr-10 rounded-md bg-gray-100 outline-none text-black placeholder-gray-500"
+                placeholder="Digite sua senha"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+                disabled={loading}
+                minLength={6}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading}
+              >
+                {showPassword ? (
+                  <EyeOff size={20} />
+                ) : (
+                  <Eye size={20} />
+                )}
+              </button>
+            </div>
           </div>
           <div className="mb-6">
             <label className="block text-sm font-semibold mb-1 text-black">Confirme a senha:</label>
-            <input
-              type="password"
-              className="w-full p-2 rounded-md bg-gray-100 outline-none text-black placeholder-gray-500"
-              placeholder="Digite sua senha novamente"
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              required
-              disabled={loading}
-              minLength={6}
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                className="w-full p-2 pr-10 rounded-md bg-gray-100 outline-none text-black placeholder-gray-500"
+                placeholder="Digite sua senha novamente"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                required
+                disabled={loading}
+                minLength={6}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={loading}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff size={20} />
+                ) : (
+                  <Eye size={20} />
+                )}
+              </button>
+            </div>
           </div>
           <button 
             type="submit"
