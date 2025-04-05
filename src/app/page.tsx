@@ -20,7 +20,7 @@ export default function Home() {
   }, []);
 
   async function fetchPeople() {
-    const { data, error } = await supabase
+    const { data: people, error } = await supabase
       .from('people')
       .select('*')
       .order('created_at', { ascending: false });
@@ -28,7 +28,7 @@ export default function Home() {
     if (error) {
       console.error('Error fetching people:', error);
     } else {
-      setPeople(data || []);
+      setPeople(people || []);
     }
   }
 
@@ -37,7 +37,7 @@ export default function Home() {
     
     try {
       if (editingId) {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('people')
           .update(formData)
           .eq('id', editingId);
@@ -50,7 +50,7 @@ export default function Home() {
         setEditingId(null);
       } else {
         console.log('Attempting to insert:', formData);
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('people')
           .insert([formData])
           .select();
@@ -60,7 +60,7 @@ export default function Home() {
           return;
         }
         
-        console.log('Insert successful:', data);
+        console.log('Insert successful');
       }
 
       setFormData({ name: '', cpf: '' });

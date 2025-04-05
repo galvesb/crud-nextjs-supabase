@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, UserPlus, Edit, List, Menu, ChevronLeft } from 'lucide-react';
+import { Users, UserPlus, List, Menu, ChevronLeft } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
