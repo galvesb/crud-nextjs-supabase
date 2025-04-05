@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Users, UserPlus, List, Menu, ChevronLeft } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Users, UserPlus, List, Menu, ChevronLeft, LogOut } from 'lucide-react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function DashboardLayout({
   children,
@@ -11,9 +12,26 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   // Começa sempre fechado (true)
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const supabase = createClientComponentClient();
+
+  const handleLogout = async () => {
+    try {
+      setLoading(true);
+      await supabase.auth.signOut();
+      router.push('/login');
+      router.refresh();
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -84,6 +102,16 @@ export default function DashboardLayout({
                 </Link>
               );
             })}
+
+            {/* Botão de Logout */}
+            <button
+              onClick={handleLogout}
+              disabled={loading}
+              className={`w-full flex items-center ${effectiveCollapsed ? 'justify-center' : 'space-x-2 px-4'} py-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 mt-8`}
+            >
+              <LogOut className="w-5 h-5" />
+              <span className={`${effectiveCollapsed ? 'hidden' : 'block'}`}>{loading ? 'Saindo...' : 'Sair'}</span>
+            </button>
           </div>
         </nav>
       </div>
