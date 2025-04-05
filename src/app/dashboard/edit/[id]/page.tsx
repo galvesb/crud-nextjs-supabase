@@ -7,7 +7,14 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { cacheService } from '@/services/cacheService';
 
-export default function EditPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: {
+    id: string
+  }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export default function EditPage({ params }: PageProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
